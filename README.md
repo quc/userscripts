@@ -11,6 +11,7 @@ Available on:
 2. Copy code from ```userscript.min.js``` and paste to the console.
 3. Press Enter.
 4. Done.
+
 ---
 ## [SmartDoc.ua documents downloader](https://github.com/quc/userscripts/tree/master/smartdoc.ua)
 
