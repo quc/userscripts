@@ -4,7 +4,7 @@
 // @homepageURL https://github.com/quc
 // @updateURL https://cdn.rawgit.com/quc/userscripts/master/fs.to/userscript.meta.js
 // @downloadURL https://cdn.rawgit.com/quc/userscripts/master/fs.to/userscript.js
-// @version 1.0.0
+// @version 1.0.1
 // @author quc
 // @date 2016-06-18
 // @namespace http://fs.to/
@@ -85,11 +85,12 @@ fstomultiplier = function() {
 
           p.innerHTML = xhr.response;
           newList = p.querySelectorAll('.b-section-list table');
-          newList.forEach(function(table){
+
+          for (var i = 0; i < newList.length; i++) {
             tables = list.querySelectorAll('table');
-            list.insertBefore(table, list.children[tables.length]);
-            if (pageLoaded < PAGE_TO_LOAD && !LAZY_LOAD) ajax();
-          });
+            list.insertBefore(newList[i], list.children[tables.length]);
+          }
+          if (pageLoaded < PAGE_TO_LOAD && !LAZY_LOAD) ajax();
         } else {
           console.error('BAD AJAX REQUEST', xhr.status, url);
         }
