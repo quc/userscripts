@@ -3,7 +3,7 @@
 // @description Load more files per page
 // @homepageURL https://github.com/quc
 // @updateURL https://rawgit.com/quc/userscripts/blob/master/fs.to/userscript.meta.js
-// @downloadURL https://cdn.rawgit.com/quc/userscripts/blob/693d30f46e0062245557f8e66e6a16b126546a83/fs.to/userscript.js
+// @downloadURL https://cdn.rawgit.com/https://github.com/quc/userscripts/blob/d0ee96bf92a3b2f7994f574f2e121c3e286b9040/fs.to/userscript.js
 // @version 1.0.1
 // @author quc
 // @date 2016-06-18
