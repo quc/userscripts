@@ -2,8 +2,8 @@
 // @name FS.TO / BRB.TO Page Multiplier
 // @description Load more files per page
 // @homepageURL https://github.com/quc
-// @updateURL https://www.example.com/userscript.meta.js
-// @downloadURL https://www.example.com/userscript.js
+// @updateURL https://raw.githubusercontent.com/quc/userscripts/master/fs.to/userscript.meta.js
+// @downloadURL https://raw.githubusercontent.com/quc/userscripts/master/fs.to/userscript.js
 // @version 1.0.0
 // @author quc
 // @date 2016-06-18
