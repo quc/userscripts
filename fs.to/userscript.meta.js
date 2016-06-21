@@ -4,7 +4,7 @@
 // @homepageURL https://github.com/quc
 // @updateURL https://raw.githubusercontent.com/quc/userscripts/master/fs.to/userscript.meta.js
 // @downloadURL https://raw.githubusercontent.com/quc/userscripts/master/fs.to/userscript.js
-// @version 1.1.0
+// @version 1.1.1
 // @author quc
 // @date 2016-06-18
 // @namespace http://fs.to/
@@ -16,5 +16,5 @@
 // @grant GM_xmlhttpRequest
 // @grant GM_getValue
 // @grant GM_setValue
-// @run-at document-start
+// @run-at document-end
 // ==/UserScript==
