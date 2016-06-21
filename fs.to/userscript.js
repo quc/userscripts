@@ -4,7 +4,7 @@
 // @homepageURL https://github.com/quc
 // @updateURL https://raw.githubusercontent.com/quc/userscripts/master/fs.to/userscript.meta.js
 // @downloadURL https://raw.githubusercontent.com/quc/userscripts/master/fs.to/userscript.js
-// @version 1.0.1
+// @version 1.1.0
 // @author quc
 // @date 2016-06-18
 // @namespace http://fs.to/
@@ -19,26 +19,32 @@
 // @run-at document-start
 // ==/UserScript==
 
-fstomultiplier = function() {
-  var list = document.querySelector('.b-section-list');
-  var currentPage = document.querySelector('.b-pager .selected').innerHTML - 1;
+var fstomultiplier = function() {
 
+  'use strict';
+
+  var list = document.querySelector('.b-section-list');
+
+  if (list === null) return;
+
+  var currentPage = document.querySelector('.b-pager .selected').innerHTML - 1;
   var PAGE_TO_LOAD = 10;
   var PAGE_VISIBLE = 5;
   var PAGE_OFFSET = Math.floor(PAGE_VISIBLE / 2);
   var LAZY_LOAD = false;
-
   var pageLoaded = 0;
+  var isStyleSet = false;
+  var nextRequest = true;
 
   var URLModify = function(options) {
     var href = location.href,
-        page = options.page || 0;
+      page = options.page || 0;
 
     page += currentPage;
-    if (/page=/.test(href)){
+    if (/page=/.test(href)) {
       href = href.replace(/page=\d+/, 'page=' + page);
     } else {
-      href += '?page=' + page;
+      href += /\?/.test(href) ? '&page=' + page : '?page=' + page;
     }
 
     return href;
@@ -46,10 +52,11 @@ fstomultiplier = function() {
 
   var pageModify = function() {
     var pages = document.querySelector('.b-pager'),
-        links = '',
-        firstPage = '<li><a href="'+location.origin + location.pathname+'">1</a></li>',
-        dots = '<li><a>...</a></li>',
-        pageOffset;
+      links = '',
+      firstPage = '<li><a href="' + location.origin + location.pathname + '">1</a></li>',
+      dots = '<li><a>...</a></li>',
+      pageOffset,
+      page;
 
     links = firstPage + dots;
 
@@ -59,25 +66,28 @@ fstomultiplier = function() {
       pageOffset = PAGE_OFFSET;
     }
 
-      for (var i = 0; i < PAGE_VISIBLE; i++) {
-        links += '<li><a href="' +
-            location.origin + location.pathname + '?page=' +
-            ((currentPage / PAGE_TO_LOAD + i - pageOffset) * PAGE_TO_LOAD)+'">'+
-            (i - pageOffset + (currentPage / PAGE_TO_LOAD)) +
-            '</a></li>';
-      }
+    for (var i = 0; i < PAGE_VISIBLE; i++) {
+      links += '<li><a href="' +
+        location.origin + location.pathname + '?page=' +
+        ((currentPage / PAGE_TO_LOAD + i - pageOffset) * PAGE_TO_LOAD) + '">' +
+        (i - pageOffset + (Math.ceil(currentPage / PAGE_TO_LOAD))) +
+        '</a></li>';
+    }
 
-    pages.innerHTML = '<ul>'+links+'</ul>';
-    document.querySelector('.b-pager a[href="'+location.href+'"]').className = 'selected';
+    pages.innerHTML = '<ul>' + links + '</ul>';
+
+    page = (/page=(\d+)/.exec(location.href) || [null, '/'])[1];
+    document.querySelector('.b-pager a[href$="' + page + '"]').className = 'selected';
   };
 
-  var ajax = function(options){
+  var ajax = function(options) {
     var xhr = new XMLHttpRequest();
     var url = URLModify({
-      page : ++pageLoaded
+      page: ++pageLoaded
     });
-
-    xhr.onreadystatechange = function(){
+    if (!nextRequest) return;
+    nextRequest = false;
+    xhr.onreadystatechange = function() {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
           var newList, tables, p;
@@ -90,6 +100,7 @@ fstomultiplier = function() {
             tables = list.querySelectorAll('table');
             list.insertBefore(newList[i], list.children[tables.length]);
           }
+          nextRequest = true;
           if (pageLoaded < PAGE_TO_LOAD && !LAZY_LOAD) ajax();
         } else {
           console.error('BAD AJAX REQUEST', xhr.status, url);
@@ -97,91 +108,166 @@ fstomultiplier = function() {
       }
     };
 
-  xhr.open('GET', url, true);
-  xhr.send(null);
- };
-/*
-   var settings = {
-     quantity : 10,
-     lazyLoad : false,
-     prefix : 'fsto_userscript_',
-     save: function () {
-       localStorage.setItem(this.prefix + 'quantity', this.quantity);
-       localStorage.setItem(this.prefix + 'lazyLoad', this.lazyLoad);
-     },
-     restore: function () {
-       this.quantity = localStorage.getItem(this.prefix + 'quantity');
-       this.lazyLoad = localStorage.getItem(this.prefix + 'lazyLoad');
+    xhr.open('GET', url, true);
+    xhr.send(null);
+  };
 
-       if (this.quantity === null || this.quantity === '') { this.quantity = 10;}
-       else {this.quantity = JSON.parse(this.quantity);}
-       if (this.lazyLoad === null) { this.lazyLoad = false;}
-       else {this.lazyLoad = JSON.parse(this.lazyLoad);}
-     },
-     reset : function () {
-       this.quantity = 10;
-       this.lazyLoad = false;
-     },
-     update: function (el) {
-       this[el.name] = el.value;
-       this.save();
-     }
-   };
+  var settings = {
+    prefix: 'fsto_userscript_',
+    master: {
+      multiply: 10,
+      lazyLoad: false,
+      position: 0,
+      href: ''
+    },
+    settings: {
 
-   var controlls = function() {
-     var select = document.querySelector('.b-section-controls');
-     var el = document.createElement('div');
-     var optionsTepmlate = '';
-     var selectedOptionsTepmlate = '';
-     var variations = 5;
+    },
 
-     for (var i = 1; i < variations; i++) {
-       selectedOptionsTepmlate += '<span class="b-section-controls__sort-selected-item "' +
-       'name="sq'+ (i * variations) +'">x'+ (i * variations) +'</span>';
-       optionsTepmlate += '<a name="sq'+ (i * variations) +'" class="b-section-controls__sort-popup-item "><span class="b-section-controls__sort-popup-item-text">x'+ (i * variations) +'</span></a>';
-     }
+    save: function() {
+      localStorage.setItem(this.prefix + 'settings', JSON.stringify(this.settings));
+    },
+    restore: function() {
+      this.settings = JSON.parse(localStorage.getItem(this.prefix + 'settings') || '{}');
 
-     var template = '<div class="b-section-controls__sort">' +
-        '<div class="b-section-controls__sort-selected">' + selectedOptionsTepmlate +
-        '</div>' +
-        '<div class="b-section-controls__sort-popup" style="display: none;">' +
-        optionsTepmlate +'</div></div>';
+      if (Object.keys(this.settings).length === 0) this.reset();
 
-    el.innerHTML = template;
-    el.querySelector('span[name="sq'+ 10 +'"]').classList.add('selected');
-    el.addEventListener('click', function(e) {
-      var popup = this.querySelector('.b-section-controls__sort-popup');
-      var select = this.querySelector('.b-section-controls__sort');
+      this.setSettings();
+    },
+    reset: function() {
+      this.settings = this.master;
+    },
+    update: function(el) {
+      if (this.settings[el.name] === el.value) return;
 
-      select.classList.toggle('m-section-controls__sort_state_open');
-      popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
-    });
-    el.querySelector('.b-section-controls__sort-popup').addEventListener('click', function(e) {
-      var value = /\d+/.exec(e.target.innerText);
-      el.querySelector('span.selected').classList.remove('selected');
-      el.querySelector('span[name="sq'+ value +'"]').classList.add('selected');
-      settings.update({
-        name : 'quantity',
-        value : value
-      });
-    });
+      this.settings[el.name] = el.value;
+      this.save();
+      this.setSettings();
+      if (el.name !== 'position' || el.name !== 'href') location.reload();
+    },
+    setSettings: function() {
+      PAGE_TO_LOAD = this.settings.multiply;
+      LAZY_LOAD = this.settings.lazyLoad;
+      if (this.settings.href === location.href && this.settings.position > 0) {
+        window.scrollTo(0, this.settings.position);
+      }
+    }
+  };
 
+  var setButtons = function() {
+
+    if (isStyleSet) return;
+    isStyleSet = true;
+
+    var select = document.querySelector('.b-section-controls__sort');
+    var values = [5, 10, 15, 20];
+    var html = '';
+
+    var mainWrapperTemplate = function(inner) {
+      return '<div class="fsto_multiplier_menu">' +
+        '<input id="fsto_multiplier_menu_selected" type="checkbox" ' +
+        'class="fsto_multiplier_menu_input">' +
+        '<label for="fsto_multiplier_menu_selected"></label>' +
+        '<ul class="fsto_multiplier_options">' +
+        inner +
+        '</ul></div>';
+    };
+    var listTemplate = function(n) {
+      return '<li class="fsto_multiplier_options_select">' +
+        '<input id="fsto_multiplier_menu_x' + n + '" type="radio" value="' + n + '" ' +
+        'name="multiply" class="fsto_multiplier_menu_input">' +
+        '<label for="fsto_multiplier_menu_x' + n + '">X' + n + '</label>' +
+        '</li>';
+    };
+    var lazyLoadTemplate = function() {
+      return '<li class="fsto_multiplier_lazyload">' +
+        '<input id="fsto_multiplier_lazyload" type="checkbox" ' +
+        'name="lazyLoad" class="fsto_multiplier_menu_input">' +
+        '<label for="fsto_multiplier_lazyload">Lazy load</label>' +
+        '</li>';
+    };
+
+    for (var i = 0; i < values.length; i++) {
+      html += listTemplate(values[i]);
+    }
+
+    html += lazyLoadTemplate();
+    html = mainWrapperTemplate(html);
+    var el = document.createElement('div');
+    el.innerHTML = html;
     select.appendChild(el);
-   };
-*/
-   if (LAZY_LOAD) {
-     window.onscroll = function(e){
-       var tables = list.querySelectorAll('table');
-       if (document.body.scrollTop > tables[tables.length-2].offsetTop) {
-         ajax();
-       }
-     };
 
-     document.querySelector('.b-pager').hidden = true;
-   } else {
-     pageModify();
-     ajax();
-   }
+    document.head.innerHTML += '<link id="_fsto_custom_style_" rel="stylesheet" type="text/css" ' +
+      'href="https://cdn.rawgit.com/quc/userscripts/master/fs.to/userscript.css">';
+
+    var linkStyle = document.head.querySelector('#_fsto_custom_style_');
+
+    var menu = select.querySelector('.fsto_multiplier_menu');
+    var inputs = select.querySelectorAll('.fsto_multiplier_menu input');
+    var selected = select.querySelector('#fsto_multiplier_menu_selected');
+    var selectedLabel = selected.nextSibling;
+    var lazyLoad = select.querySelector('#fsto_multiplier_lazyload');
+
+    selectedLabel.innerText = LAZY_LOAD ? 'Lazy load' : 'x' + PAGE_TO_LOAD;
+
+    linkStyle.onload = function() {
+      menu.hidden = false;
+    };
+
+    menu.hidden = true;
+
+    if (LAZY_LOAD) lazyLoad.checked = true;
+    for (i = 0; i < inputs.length; i++) {
+      if (PAGE_TO_LOAD == inputs[i].value && !LAZY_LOAD) inputs[i].checked = true;
+      inputs[i].addEventListener('change', function(e) {
+        if (e.target.name === 'multiply') {
+          selectedLabel.innerHTML = 'x' + e.target.value;
+          selected.checked = false;
+          lazyLoad.checked = false;
+          settings.update({
+            name: lazyLoad.name,
+            value: lazyLoad.checked
+          });
+          settings.update(e.target);
+        } else if (e.target === lazyLoad) {
+          settings.update({
+            name: e.target.name,
+            value: e.target.checked
+          });
+          selected.checked = false;
+        }
+      });
+    }
+  };
+
+  settings.restore();
+
+  window.addEventListener("beforeunload", function(event) {
+    settings.update({
+      name: 'position',
+      value: window.scrollY
+    });
+    settings.update({
+      name: 'href',
+      value: location.href
+    });
+  });
+
+  setButtons();
+  if (LAZY_LOAD) {
+    window.onscroll = function(e) {
+      var tables = list.querySelectorAll('table');
+      if (document.body.scrollTop > tables[tables.length - 2].offsetTop) {
+        ajax();
+        nextRequest = false;
+      }
+    };
+
+    document.querySelector('.b-pager').hidden = true;
+  } else {
+    ajax();
+    pageModify();
+  }
 };
-
-document.addEventListener("DOMContentLoaded", fstomultiplier, false);
+//fstomultiplier();
+document.addEventListener("DOMContentLoaded", fstomultiplier, true);
