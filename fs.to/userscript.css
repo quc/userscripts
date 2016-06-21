@@ -1,0 +1,40 @@
+.fsto_multiplier_menu {
+	display: inline-block;
+	position: absolute;
+	top: 0;
+	left: -110px;
+	width: 100px;
+	overflow: hidden;
+	background: #fff;
+	color: #646d7c;
+	text-transform: uppercase;
+	text-align: center;
+	border: 1px solid #a2b3c7;
+	border-radius: 3px;
+	z-index: 999;
+}
+.fsto_multiplier_options_select:hover {
+	background: #e8eff9;
+}
+.fsto_multiplier_menu ul {
+	list-style-type: none;
+	max-height: 0;
+	margin: 0;
+	padding: 0;
+	border-top: 1px solid #a2b3c7;
+	transition: all 0.6s ease;
+}
+.fsto_multiplier_menu input:checked ~ ul {
+	max-height: 200px;
+}
+.fsto_multiplier_menu input {
+	display: none;
+}
+.fsto_multiplier_options input:checked + label {
+	background: #dbe6f3;
+}
+.fsto_multiplier_menu label {
+	display: block;
+	padding: 7px;
+	cursor: pointer;
+}
