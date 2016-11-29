@@ -13,41 +13,26 @@
 
 document.addEventListener("DOMContentLoaded", function(){
 
-  var btnEnter = document.createElement('input');
-  btnEnter.setAttribute('type','button');
-  btnEnter.setAttribute('value','Заполнить');
-  btnEnter.setAttribute('style','height: 28px;');
-  btnEnter.className = "btn btn_signup";
+  var btnEnter = '<input type="button" class="btn btn_signup" style="height: 28px" value="Заполнить">'; 
+  var btnSignup = document.querySelector('.btn_signup');
 
-  document.getElementsByClassName('btn_signup')[0]
-    .parentNode.insertBefore(btnEnter,
-      document.getElementsByClassName('btn_signup')[0]);
+  btnSignup.parentNode.insertBefore(btnEnter, btnSignup);
 
-  btnEnter.addEventListener('click', function(){
+  btnEnter.addEventListener('click', function() {
 
-    var fName = '',
-        lName = '',
-        day,
-        month,
-        year,
-        sex,
-        randNum,
-        password,
-        i,
-        j,
-        inPut,
+    var fName = '', lName = '', day, month, year, sex, 
+        randNum, password, i, j, inPut, 
         symbArr = 'abcdefghijklmnopqrstuvwxyz'.split('');
-
+  
     randNum = Math.floor(Math.random() * 1000);
-
+  
     i = Math.floor(Math.random() * (15 - 4 + 1)) + 4;
-      // Name Gen
+    // Name Gen
       while(i !== 0){
         var a = Math.floor(Math.random() * symbArr.length);
         fName += symbArr[a];
         i--;
       }
-
     j = Math.floor(Math.random() * (15 - 4 + 1)) + 4;
       // Last Name Gen
       while(j !== 0){
@@ -56,21 +41,18 @@ document.addEventListener("DOMContentLoaded", function(){
         j--;
       }
     password = "Hdhdr87tFbd5sr-SrObvctN_d2";
-
     day = Math.floor(Math.random() * (28 - 1 + 1)) + 1;
     month = Math.floor(Math.random() * (12 - 1 + 1)) + 1;
     year = Math.floor(Math.random() * (1996 - 1960 + 1)) + 1960;
     sex = Math.floor(Math.random() * 2);
     //
-
-    inPut = document.getElementsByClassName('inPut');
-
+    inPut = document.querySelectorAll('.inPut');
     inPut[0].value = fName; // First Name
     inPut[1].value = lName; // Last Name
-    document.getElementsByClassName('days')[0].value = day; // Days
-    document.getElementsByClassName('months')[0].value = month; // Month
-    document.getElementsByClassName('years')[0].value = year; // Year
-    document.getElementsByClassName('vtm')[sex].click(); // Sex
+    document.querySelector('.days').value = day; // Days
+    document.querySelector('.months').value = month; // Month
+    document.querySelector('.years').value = year; // Year
+    document.querySelectorAll('.vtm')[sex].click(); // Sex
     inPut[3].value = fName + '_' + lName + randNum; // Mail Box
     inPut[4].value = password; // Password
     inPut[5].value = password; // Retype password
