@@ -30,7 +30,7 @@ Available on:
 
 #### [Target URL](https://e.mail.ru/signup)
 ---
-## [EX.UA Display pages multiplier](https://github.com/quc/userscripts/tree/master/ex.ua/exuamultiplier)
+## [EX.UA Display pages multiplier](https://github.com/quc/userscripts/tree/master/ex.ua/exuamultiplier) (R.I.P. no more available)
 
 ### Features
 * Load from x1 up to x50 elements per page (200 x 50 = 10000 elements).
