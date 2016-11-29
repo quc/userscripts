@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         SmartDoc Downloader
 // @namespace    http://smartdoc.ua
-// @version      1.0.1
-// @date         October 2015.
+// @version      2.0.0
+// @date         November 2016.
 // @description  Download documents for free
 // @author       quc
 // @license       MIT License
@@ -12,45 +12,15 @@
 // ==/UserScript==
 
 function makeItFree(){
+	'use strict';
+	var iframe = document.querySelector('iframe');
+	var btn = document.querySelector('.buy.button.yellow');
 
-  'use strict';
+	btn.innerText = 'Скачать';
 
-  var dependencies = [
-    'https://rawgit.com/evidenceprime/html-docx-js/master/dist/html-docx.js',
-    'https://rawgit.com/eligrey/FileSaver.js/master/FileSaver.min.js'
-  ],
-  scriptElement,
-  download,
-  newButton,
-  oldButton;
-
-  for (var i = 0; i < dependencies.length; i++) {
-    scriptElement = document.createElement('script');
-    scriptElement.setAttribute("type","text/javascript");
-    scriptElement.setAttribute("src", dependencies[i]);
-    document.head.appendChild(scriptElement);
-  }
-
-  download = function(){
-    var iframeDocument = document.querySelector('iframe').contentWindow.document,
-        nameOfDocument = iframeDocument.body.querySelector('td').innerText,
-        content = iframeDocument.body.innerHTML,
-        converted = htmlDocx.asBlob(content);
-
-    saveAs(converted, nameOfDocument + '.docx');
-  };
-
-  newButton = document.createElement('a');
-  oldButton = document.querySelector('.buy-block a');
-
-  newButton.className = oldButton.className + " free";
-  newButton.style.width = '196px';
-  newButton.innerHTML = 'Скачать';
-
-  newButton.addEventListener('click', download, false);
-
-  oldButton.parentNode.insertBefore(newButton, oldButton);
-  oldButton.parentNode.removeChild(oldButton);
+	btn.onclick = function(){
+		window.open().document.write(iframe.contentDocument.body.innerHTML);
+	}
 }
 
 document.addEventListener('DOMContentLoaded', makeItFree, false);
